@@ -1,0 +1,13 @@
+{
+  "name": "Basketball Reference Extensions",
+  "version": "0.1",
+  "manifest_version": 2,
+  "description": "A series of enhancements to basketball-reference.com",
+  "content_scripts": [
+    {
+      "matches": ["http://www.basketball-reference.com/*"],
+      "js": ["d3.min.js", "index.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
