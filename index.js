@@ -1,5 +1,12 @@
 (function main() {
 
+  var ALLOWED_TYPES = [
+    'GS','MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT', 'FTA', 'FT%',
+    'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc',
+    'TS%', 'eFG%', 'ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BLK%', 'TOV%',
+    'USG%', 'ORtg', 'DRtg'
+  ]
+
   // Helper for use in event bindings
   var bind = function(func, context) {
     return Function.prototype.bind.apply(func, [].slice.call(arguments, 1))
