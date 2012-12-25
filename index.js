@@ -18,39 +18,20 @@
     table.style('display', 'none')
 
     if(container.select('div.graph').node() == null) {
-      div = container.insert('div')
+      var data = toData(table),
+          stats = d3.keys(data[0])
+
+      var div = container.insert('div')
         .attr('class', 'graph')
         .style('height', '500px')
 
-      select = div.append('select')
+      var select = div.append('select')
+      select.selectAll('option')
+        .data(stats)
+      .enter().append('option')
+        .text(function(d) { return d })
 
-      container.selectAll('thead th')
-        .each(function(idx) {
-          var stat = this.innerText
-          if(ALLOWED_TYPES.indexOf(stat.toLowerCase()) != -1) {
-            select.append('option')
-              .attr('data-index', idx)
-              .text(stat)
-          }
-        })
-
-      // var dateidx = null
-      // table.selectAll('thead th').each(function(el, idx) {
-      //   if(this.innerText.toLowerCase() == DATE_LABEL)
-      //     dateidx = idx + 1
-      // })
-
-      // var dates = table.selectAll('tbody td:nth-child(' + dateidx + ')')
-      //   .map(function(els) {
-      //     return els.map(function(el) { return el.innerText })
-      //   })
-
-      // console.log(dates)
-
-      console.log(toData(table))
-
-      var vis = div.select('.chart')
-        .enter().append('svg')
+      var vis = div.select('.chart').append('svg')
           .attr('class', 'chart')
 
       select.on('change', function(event) {
