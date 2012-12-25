@@ -1,11 +1,13 @@
 (function main() {
 
+  // Types of statistics that are suitable for graphing
   var ALLOWED_TYPES = [
     'mp', 'fg', 'fga', 'fg%', '3p', '3pa', '3p%', 'ft', 'fta', 'ft%','orb',
     'drb', 'trb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'gmsc', 'ts%',
     'efg%', 'orb%', 'drb%', 'trb%', 'ast%', 'stl%', 'blk%', 'tov%','usg%',
     'ortg', 'drtg'
   ]
+
 
   var DATE_LABEL = 'date'
 
@@ -14,6 +16,10 @@
     return Function.prototype.bind.apply(func, [].slice.call(arguments, 1))
   }
 
+  // Build or show the chart
+  //
+  // container - The container holding the table
+  // table     - The statistics table
   function showChart(container, table) {
     table.style('display', 'none')
 
@@ -44,12 +50,19 @@
     }
   }
 
+  // Hide the chart
+  //
+  // container - The container for the table
+  // table     - The table holding the statistics
   function hideChart(container, table) {
     table.style('display', 'table')
     container.select('div.graph').style('display', 'none')
   }
 
   // Chart link was clicked
+  //
+  // link - the anchor element that triggered the event
+  // event - the event object
   function onChartLinkClick(link, event) {
     var container = d3.select(this.parentNode),
         table     = container.select('.stats_table')
@@ -63,6 +76,11 @@
     }
   }
 
+  // Build an array of objects from an HTML table
+  //
+  // table - d3 selection
+  //
+  // Returns an array or games [{game}, {game}, ...]
   function toData(table) {
     var dateidx = null,
         headers = table.selectAll('thead th'),
@@ -90,6 +108,7 @@
         if(ALLOWED_TYPES.indexOf(label) != -1) {
           var val = this.innerText
 
+          // convert minutes played to decimal
           if(label == 'mp') {
             var mp = val.split(':').map(Number),
                 val = parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
