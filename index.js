@@ -22,7 +22,7 @@
   // table     - The statistics table
   function showChart(container, table) {
     var width = table.node().offsetWidth,
-        height = 500
+        height = 400
 
     table.style('display', 'none')
 
@@ -42,7 +42,7 @@
 
       var div = container.append('div')
         .attr('class', 'graph')
-        .style('width', width + padl + padr + 'px')
+        .style('width', width + 'px')
         .style('border', '1px solid #ccc')
 
       var h3 = div.append('h3')
@@ -150,6 +150,7 @@
   // link - the anchor element that triggered the event
   // event - the event object
   function onChartLinkClick(link, event) {
+    event.preventDefault()
     var container = d3.select(this.parentNode),
         table     = container.select('.stats_table')
 
@@ -203,7 +204,15 @@
 
           // Convert percentage decimals to integers
           } else if(label.indexOf('%') != -1) {
-            val = val == '' ? NaN : (parseFloat(val) * 100).toFixed(1)
+            if(val == '') {
+              val = NaN
+            } else {
+              if((/^\./).test(val) || parseFloat(val) == 1) {
+                val = (parseFloat(val) * 100).toFixed(1)
+              } else {
+                val = parseFloat(val)
+              }
+            }
 
           // Floats strings to floats and number strings to numbers
           } else {

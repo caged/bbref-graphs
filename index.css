@@ -4,7 +4,7 @@ a.bbref-chart-link[href]:visited {
   color: #333;
   font-weight: bold;
   text-decoration: none;
-  background: -webkit-linear-gradient(#f7f7f7, #ccc);
+  background: -webkit-linear-gradient(#f7f7f7, #ddd);
   padding: 3px 6px;
   border-radius: 2px;
   border: 1px solid #ccc;
