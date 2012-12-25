@@ -29,7 +29,7 @@
     if(container.select('div.graph').node() == null) {
       var data = toData(table),
           stats = d3.keys(data[0]),
-          padt = 10, padr = 0, padb = 10, padl = 40,
+          padt = 20, padr = 0, padb = 10, padl = 40,
           stat = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
           curData = data.map(function(d) { return d[stat] })
             .filter(function(d) { return d != undefined })
@@ -40,10 +40,12 @@
         .style('border', '1px solid #ccc')
 
       var h3 = div.append('h3')
-        .text(stat.toUpperCase())
         .style('padding', '10px')
         .style('border-bottom', '1px solid #ccc')
         .style('margin', 0)
+
+      var subject = h3.append('span')
+        .attr('class', 'subject')
 
       var select = h3.append('select')
         .style('float', 'right')
@@ -53,6 +55,12 @@
       .enter().append('option')
         .text(function(d) { return d })
 
+      var x = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.1)
+      var y = d3.scale.linear().range([height, 0])
+
+      var xAxis = d3.svg.axis().scale(x).tickSize(8)
+      var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
+
       var vis = div.append('svg')
         .attr('class', 'bbref-chart')
         .attr('width', width + padl + padr)
@@ -60,46 +68,40 @@
       .append('g')
         .attr('transform', 'translate(' + padl + ',' + padt + ')')
 
+      vis.append("g")
+        .attr("class", "y axis")
+
       function render(entries, curstat) {
+        console.log(entries, curstat)
         var max = d3.max(entries)
-        var x = d3.scale.ordinal().domain(d3.range(entries.length)).rangeRoundBands([0, width - padl - padr], 0.1)
-        var y = d3.scale.linear().domain([0, max]).range([height, 0])
 
-        var xAxis = d3.svg.axis().scale(x).tickSize(8)
-        var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
+        x.domain(d3.range(entries.length))
+        y.domain([0, max * 1.2])
 
-        yg = vis.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
+        vis.select('.y.axis').call(yAxis)
 
-        yg.selectAll('.y.axis line')
-          .style('stroke', '#eee')
-          .style('stroke-width', 1)
-
-        yg.selectAll('.y.axis text')
-          .style('fill', '#777')
-          .style('font-family', 'Helvetica Neue, Helvetica, sans-serif')
-          .style('font-size', '12px')
+        subject.text(stat.toUpperCase())
 
         var bargroups = vis.selectAll('g.bar')
           .data(entries)
 
-        bargroups.exit().remove()
-        bargroups.enter().append('g')
-          .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
+        var g = bargroups.enter().append('g')
           .attr('class', 'bar')
+          .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
 
-        rects = bargroups.append('rect')
+        g.append('rect')
           .attr('width', x.rangeBand())
-          .attr('height', function(d) { return height - y(d)})
-          .attr('y', function(d) { return y(d) })
-          .style('fill', 'green')
-          .style('fill-opacity', 0.5)
-          .style('stroke', 'green')
-          .style('stroke-width', 1)
 
-        vis.select('path.domain')
-          .style('display', 'none')
+        bargroups.select('rect')
+          .attr('height', function(d) { console.log(d); return height - y(d)})
+          .attr('y', function(d) { return y(d) })
+          // .on('click', function(d) { console.log(d) })
+
+        // rects.selectAll('rect')
+        // .enter().append('rect')
+
+
+        bargroups.exit().remove()
       }
 
       render(curData, stat)
@@ -109,7 +111,6 @@
         curData = data.map(function(d) { return d[stat] })
           .filter(function(d) { return d != undefined })
 
-        h3.text(stat)
         render(curData, stat)
       })
 
@@ -181,6 +182,8 @@
           if(label == 'mp') {
             var mp = val.split(':').map(Number),
                 val = parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
+          } else if(label.indexOf('%') != -1) {
+            val = parseFloat(val) * 100
           } else {
             val = val.indexOf('.') == -1 ? ~~val : parseFloat(val)
           }
