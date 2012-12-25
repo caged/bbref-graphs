@@ -34,20 +34,19 @@
           curData = data.map(function(d) { return d[stat] })
             .filter(function(d) { return d != undefined })
 
-      console.log(stat, curData)
-      var max = d3.max(curData)
-      var x = d3.scale.ordinal().domain(d3.range(curData.length)).rangeRoundBands([0, width - padl - padr], 0.1)
-      var y = d3.scale.linear().domain([0, max]).range([height, 0])
-
-      var xAxis = d3.svg.axis().scale(x).tickSize(8)
-      var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
-
       var div = container.append('div')
         .attr('class', 'graph')
-        .style('height', height + padt + padb + 'px')
         .style('width', width + padl + padr + 'px')
+        .style('border', '1px solid #ccc')
 
-      var select = div.append('select')
+      var h3 = div.append('h3')
+        .text(stat.toUpperCase())
+        .style('padding', '10px')
+        .style('border-bottom', '1px solid #ccc')
+        .style('margin', 0)
+
+      var select = h3.append('select')
+        .style('float', 'right')
 
       select.selectAll('option')
           .data(stats)
@@ -55,52 +54,63 @@
         .text(function(d) { return d })
 
       var vis = div.append('svg')
-        .attr('class', 'chart')
+        .attr('class', 'bbref-chart')
         .attr('width', width + padl + padr)
         .attr('height', height + padt + padb)
       .append('g')
         .attr('transform', 'translate(' + padl + ',' + padt + ')')
 
-      yg = vis.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
+      function render(entries, curstat) {
+        var max = d3.max(entries)
+        var x = d3.scale.ordinal().domain(d3.range(entries.length)).rangeRoundBands([0, width - padl - padr], 0.1)
+        var y = d3.scale.linear().domain([0, max]).range([height, 0])
 
-      yg.selectAll('.y.axis line')
-        .style('stroke', '#eee')
-        .style('stroke-width', 1)
+        var xAxis = d3.svg.axis().scale(x).tickSize(8)
+        var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
 
-      yg.selectAll('.y.axis text')
-        .style('fill', '#777')
-        .style('font-family', 'Helvetica Neue, Helvetica, sans-serif')
-        .style('font-size', '12px')
+        yg = vis.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
 
-      var bargroups = vis.selectAll('g.bar')
-        .data(curData)
-      .enter().append('g')
-        .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
+        yg.selectAll('.y.axis line')
+          .style('stroke', '#eee')
+          .style('stroke-width', 1)
 
-      rects = bargroups.append('rect')
-        .attr('width', x.rangeBand())
-        .attr('height', function(d) { return height - y(d)})
-        .attr('y', function(d) { return y(d) })
-        .style('fill', 'green')
-        .style('fill-opacity', 0.5)
-        .style('stroke', 'green')
-        .style('stroke-width', 1)
+        yg.selectAll('.y.axis text')
+          .style('fill', '#777')
+          .style('font-family', 'Helvetica Neue, Helvetica, sans-serif')
+          .style('font-size', '12px')
 
+        var bargroups = vis.selectAll('g.bar')
+          .data(entries)
 
-      vis.select('path.domain')
-        .style('display', 'none')
+        bargroups.exit().remove()
+        bargroups.enter().append('g')
+          .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
+          .attr('class', 'bar')
+
+        rects = bargroups.append('rect')
+          .attr('width', x.rangeBand())
+          .attr('height', function(d) { return height - y(d)})
+          .attr('y', function(d) { return y(d) })
+          .style('fill', 'green')
+          .style('fill-opacity', 0.5)
+          .style('stroke', 'green')
+          .style('stroke-width', 1)
+
+        vis.select('path.domain')
+          .style('display', 'none')
+      }
+
+      render(curData, stat)
 
       select.on('change', function(event) {
         stat = this.options[this.selectedIndex].text
         curData = data.map(function(d) { return d[stat] })
           .filter(function(d) { return d != undefined })
 
-        bargroups.selectAll('g.bar')
-          .data(curData)
-        // .transition()
-
+        h3.text(stat)
+        render(curData, stat)
       })
 
     } else {
