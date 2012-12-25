@@ -1,20 +1,23 @@
 (function main() {
 
   // Types of statistics that are suitable for graphing
-  var ALLOWED_TYPES = [
+  var STAT_TYPES = [
     'mp', 'fg', 'fga', 'fg%', '3p', '3pa', '3p%', 'ft', 'fta', 'ft%','orb',
     'drb', 'trb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'gmsc', 'ts%',
     'efg%', 'orb%', 'drb%', 'trb%', 'ast%', 'stl%', 'blk%', 'tov%','usg%',
     'ortg', 'drtg'
   ]
 
-
   var DATE_LABEL = 'date'
+
+  var INFO_TYPES = ['opp', 'date']
 
   // Helper for use in event bindings
   var bind = function(func, context) {
     return Function.prototype.bind.apply(func, [].slice.call(arguments, 1))
   }
+
+  var format = d3.time.format('%Y-%m-%d')
 
   // Build or show the chart
   //
@@ -30,9 +33,9 @@
       var data    = toData(table),
           player  = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
           name    = player[0] + " " + player[player.length - 1],
-          stats   = d3.keys(data[0]),
+          stats   = d3.keys(data[0]).filter(function(d) { return d != 'info' }),
           padt    = 20, padr = 0, padb = 10, padl = 40,
-          stat    = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
+          stat    = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)],
           curData = filterStat(stat, data),
           x       = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2),
           y       = d3.scale.linear().range([height, 0]),
@@ -76,7 +79,6 @@
         .attr("class", "y axis")
 
       function render(entries, curstat) {
-        console.log(entries)
         var max = d3.max(entries)
 
         x.domain(d3.range(entries.length))
@@ -193,9 +195,10 @@
     rows.each(function() {
       var obj = {}
       d3.select(this).selectAll('td').each(function(cell, idx) {
-        var label = labels[idx]
-        if(ALLOWED_TYPES.indexOf(label) != -1) {
-          var val = this.innerText
+        var label = labels[idx],
+            val = this.innerText
+
+        if(STAT_TYPES.indexOf(label) != -1) {
 
           // convert minutes played to decimal
           if(label == 'mp') {
@@ -220,6 +223,10 @@
           }
 
           obj[label] = val
+        } else if(INFO_TYPES.indexOf(label) != -1) {
+          if(typeof obj.info == "undefined") obj.info = {}
+          if(label == 'date') val = format.parse(val)
+          obj.info[label] = val
         }
       })
       data.push(obj)
