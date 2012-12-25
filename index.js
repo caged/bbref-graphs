@@ -1,11 +1,13 @@
 (function main() {
 
   var ALLOWED_TYPES = [
-    'GS','MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT', 'FTA', 'FT%',
-    'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc',
-    'TS%', 'eFG%', 'ORB%', 'DRB%', 'TRB%', 'AST%', 'STL%', 'BLK%', 'TOV%',
-    'USG%', 'ORtg', 'DRtg'
+    'mp', 'fg', 'fga', 'fg%', '3p', '3pa', '3p%', 'ft', 'fta', 'ft%','orb',
+    'drb', 'trb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'gmsc', 'ts%',
+    'efg%', 'orb%', 'drb%', 'trb%', 'ast%', 'stl%', 'blk%', 'tov%','usg%',
+    'ortg', 'drtg'
   ]
+
+  var DATE_LABEL = 'date'
 
   // Helper for use in event bindings
   var bind = function(func, context) {
@@ -16,9 +18,45 @@
     table.style('display', 'none')
 
     if(container.select('div.graph').node() == null) {
-      container.insert('div')
+      div = container.insert('div')
         .attr('class', 'graph')
-        .text('chart')
+        .style('height', '500px')
+
+      select = div.append('select')
+
+      container.selectAll('thead th')
+        .each(function(idx) {
+          var stat = this.innerText
+          if(ALLOWED_TYPES.indexOf(stat.toLowerCase()) != -1) {
+            select.append('option')
+              .attr('data-index', idx)
+              .text(stat)
+          }
+        })
+
+      // var dateidx = null
+      // table.selectAll('thead th').each(function(el, idx) {
+      //   if(this.innerText.toLowerCase() == DATE_LABEL)
+      //     dateidx = idx + 1
+      // })
+
+      // var dates = table.selectAll('tbody td:nth-child(' + dateidx + ')')
+      //   .map(function(els) {
+      //     return els.map(function(el) { return el.innerText })
+      //   })
+
+      // console.log(dates)
+
+      console.log(toData(table))
+
+      var vis = div.select('.chart')
+        .enter().append('svg')
+          .attr('class', 'chart')
+
+      select.on('change', function(event) {
+
+      })
+
     } else {
       container.select('div.graph')
         .style('display', 'block')
@@ -44,6 +82,17 @@
     }
   }
 
+  function toData(table) {
+    var dateidx = null
+    table.selectAll('thead th').each(function(el, idx) {
+      var stat = this.innerText.toLowerCase()
+      console.log(stat)
+      if(ALLOWED_TYPES.indexOf(stat.toLowerCase()) != -1) {
+
+      }
+    })
+  }
+
 
 
   var headings = document.querySelectorAll('#basic_div .table_heading, #advanced_div .table_heading'),
@@ -57,7 +106,6 @@
     a.innerText = 'Chart'
     a.href = '#chart'
     a.addEventListener('click', bind(onChartLinkClick, heading, a))
-
     heading.appendChild(a)
   }
 
