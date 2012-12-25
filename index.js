@@ -219,8 +219,6 @@
     return data
   }
 
-
-
   var headings = document.querySelectorAll('#basic_div .table_heading, #advanced_div .table_heading'),
       i = 0,
       len = headings.length
@@ -231,6 +229,7 @@
 
     a.innerText = 'Chart'
     a.href = '#chart'
+    a.className = 'bbref-chart-link'
     a.addEventListener('click', bind(onChartLinkClick, heading, a))
     heading.appendChild(a)
   }
