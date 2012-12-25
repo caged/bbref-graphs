@@ -11,6 +11,13 @@ svg.bbref-chart .axis text {
   font-size: 12px;
 }
 
+svg.bbref-chart .barlabel {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 11px;
+  fill: #444;
+}
+
 svg.bbref-chart .axis line {
   stroke: #eee;
   stroke-width: 1px;

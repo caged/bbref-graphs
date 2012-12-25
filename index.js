@@ -28,11 +28,13 @@
 
     if(container.select('div.graph').node() == null) {
       var data = toData(table),
+          player = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
+          name  = player[0] + " " + player[player.length - 1],
           stats = d3.keys(data[0]),
           padt = 20, padr = 0, padb = 10, padl = 40,
           stat = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
           curData = data.map(function(d) { return d[stat] })
-            .filter(function(d) { return d != undefined })
+            .filter(function(d) { return d != undefined && !isNaN(d) })
 
       var div = container.append('div')
         .attr('class', 'graph')
@@ -43,6 +45,10 @@
         .style('padding', '10px')
         .style('border-bottom', '1px solid #ccc')
         .style('margin', 0)
+
+      h3.append('span')
+        .attr('class', 'player')
+        .text(name + ": ")
 
       var subject = h3.append('span')
         .attr('class', 'subject')
@@ -55,7 +61,7 @@
       .enter().append('option')
         .text(function(d) { return d })
 
-      var x = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.1)
+      var x = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2)
       var y = d3.scale.linear().range([height, 0])
 
       var xAxis = d3.svg.axis().scale(x).tickSize(8)
@@ -72,11 +78,11 @@
         .attr("class", "y axis")
 
       function render(entries, curstat) {
-        console.log(entries, curstat)
+        console.log(entries)
         var max = d3.max(entries)
 
         x.domain(d3.range(entries.length))
-        y.domain([0, max * 1.2])
+        y.domain([0, max * 1.1])
 
         vis.select('.y.axis').call(yAxis)
 
@@ -92,13 +98,21 @@
         g.append('rect')
           .attr('width', x.rangeBand())
 
-        bargroups.select('rect')
-          .attr('height', function(d) { console.log(d); return height - y(d)})
-          .attr('y', function(d) { return y(d) })
-          // .on('click', function(d) { console.log(d) })
+        g.append('text')
+          .attr('class', 'barlabel')
+          .attr('text-anchor', 'middle')
+          .attr('x', x.rangeBand() / 2)
 
-        // rects.selectAll('rect')
-        // .enter().append('rect')
+        bargroups.select('rect')
+          .attr('height', function(d) { return height - y(d)})
+          .attr('y', function(d) { return y(d) })
+
+        bargroups.select('text')
+          .attr('y', function(d) { return y(d) - 5 })
+          .text(function(d) { return d })
+          .style('display', function(d) {
+            if(isNaN(d)) return 'none'
+          })
 
 
         bargroups.exit().remove()
@@ -109,7 +123,7 @@
       select.on('change', function(event) {
         stat = this.options[this.selectedIndex].text
         curData = data.map(function(d) { return d[stat] })
-          .filter(function(d) { return d != undefined })
+          .filter(function(d) { return d != undefined && !isNaN(d) })
 
         render(curData, stat)
       })
@@ -162,11 +176,13 @@
         dateidx = idx + 1
     })
 
+    // We want to have dates before we decide to continue
     if(!dateidx) {
       console.log('No Date found in table')
       return
     }
 
+    // Get the stat labels
     var labels = headers.map(function(hdrs) {
       return hdrs.map(function(hdr) { return hdr.innerText.toLowerCase() })
     })[0]
@@ -182,8 +198,12 @@
           if(label == 'mp') {
             var mp = val.split(':').map(Number),
                 val = parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
+
+          // Convert percentage decimals to integers
           } else if(label.indexOf('%') != -1) {
-            val = parseFloat(val) * 100
+            val = val == '' ? NaN : (parseFloat(val) * 100).toFixed(1)
+
+          // Floats strings to floats and number strings to numbers
           } else {
             val = val.indexOf('.') == -1 ? ~~val : parseFloat(val)
           }
