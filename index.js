@@ -21,26 +21,85 @@
   // container - The container holding the table
   // table     - The statistics table
   function showChart(container, table) {
+    var width = table.node().offsetWidth,
+        height = 500
+
     table.style('display', 'none')
 
     if(container.select('div.graph').node() == null) {
       var data = toData(table),
-          stats = d3.keys(data[0])
+          stats = d3.keys(data[0]),
+          padt = 10, padr = 0, padb = 10, padl = 40,
+          stat = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
+          curData = data.map(function(d) { return d[stat] })
+            .filter(function(d) { return d != undefined })
 
-      var div = container.insert('div')
+      console.log(stat, curData)
+      var max = d3.max(curData)
+      var x = d3.scale.ordinal().domain(d3.range(curData.length)).rangeRoundBands([0, width - padl - padr], 0.1)
+      var y = d3.scale.linear().domain([0, max]).range([height, 0])
+
+      var xAxis = d3.svg.axis().scale(x).tickSize(8)
+      var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
+
+      var div = container.append('div')
         .attr('class', 'graph')
-        .style('height', '500px')
+        .style('height', height + padt + padb + 'px')
+        .style('width', width + padl + padr + 'px')
 
       var select = div.append('select')
+
       select.selectAll('option')
-        .data(stats)
+          .data(stats)
       .enter().append('option')
         .text(function(d) { return d })
 
-      var vis = div.select('.chart').append('svg')
-          .attr('class', 'chart')
+      var vis = div.append('svg')
+        .attr('class', 'chart')
+        .attr('width', width + padl + padr)
+        .attr('height', height + padt + padb)
+      .append('g')
+        .attr('transform', 'translate(' + padl + ',' + padt + ')')
+
+      yg = vis.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+
+      yg.selectAll('.y.axis line')
+        .style('stroke', '#eee')
+        .style('stroke-width', 1)
+
+      yg.selectAll('.y.axis text')
+        .style('fill', '#777')
+        .style('font-family', 'Helvetica Neue, Helvetica, sans-serif')
+        .style('font-size', '12px')
+
+      var bargroups = vis.selectAll('g.bar')
+        .data(curData)
+      .enter().append('g')
+        .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
+
+      rects = bargroups.append('rect')
+        .attr('width', x.rangeBand())
+        .attr('height', function(d) { return height - y(d)})
+        .attr('y', function(d) { return y(d) })
+        .style('fill', 'green')
+        .style('fill-opacity', 0.5)
+        .style('stroke', 'green')
+        .style('stroke-width', 1)
+
+
+      vis.select('path.domain')
+        .style('display', 'none')
 
       select.on('change', function(event) {
+        stat = this.options[this.selectedIndex].text
+        curData = data.map(function(d) { return d[stat] })
+          .filter(function(d) { return d != undefined })
+
+        bargroups.selectAll('g.bar')
+          .data(curData)
+        // .transition()
 
       })
 
