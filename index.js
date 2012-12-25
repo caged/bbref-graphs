@@ -27,14 +27,18 @@
     table.style('display', 'none')
 
     if(container.select('div.graph').node() == null) {
-      var data = toData(table),
-          player = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
-          name  = player[0] + " " + player[player.length - 1],
-          stats = d3.keys(data[0]),
-          padt = 20, padr = 0, padb = 10, padl = 40,
-          stat = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
-          curData = data.map(function(d) { return d[stat] })
-            .filter(function(d) { return d != undefined && !isNaN(d) })
+      var data    = toData(table),
+          player  = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
+          name    = player[0] + " " + player[player.length - 1],
+          stats   = d3.keys(data[0]),
+          padt    = 20, padr = 0, padb = 10, padl = 40,
+          stat    = ALLOWED_TYPES[Math.floor(Math.random() * ALLOWED_TYPES.length)],
+          curData = filterStat(stat, data),
+          x       = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2),
+          y       = d3.scale.linear().range([height, 0]),
+          xAxis   = d3.svg.axis().scale(x).tickSize(8),
+          yAxis   = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
+
 
       var div = container.append('div')
         .attr('class', 'graph')
@@ -60,12 +64,6 @@
           .data(stats)
       .enter().append('option')
         .text(function(d) { return d })
-
-      var x = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2)
-      var y = d3.scale.linear().range([height, 0])
-
-      var xAxis = d3.svg.axis().scale(x).tickSize(8)
-      var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
 
       var vis = div.append('svg')
         .attr('class', 'bbref-chart')
@@ -122,8 +120,7 @@
 
       select.on('change', function(event) {
         stat = this.options[this.selectedIndex].text
-        curData = data.map(function(d) { return d[stat] })
-          .filter(function(d) { return d != undefined && !isNaN(d) })
+        curData = filterStat(stat, data)
 
         render(curData, stat)
       })
@@ -132,6 +129,11 @@
       container.select('div.graph')
         .style('display', 'block')
     }
+  }
+
+  function filterStat(stat, data) {
+    return data.map(function(d) { return d[stat] })
+      .filter(function(d) { return d != undefined && !isNaN(d) })
   }
 
   // Hide the chart
