@@ -34,12 +34,12 @@
           player  = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
           name    = player[0] + " " + player[player.length - 1],
           stats   = d3.keys(data[0]).filter(function(d) { return d != 'info' }),
-          padt    = 20, padr = 0, padb = 10, padl = 40,
+          padt    = 20, padr = 10, padb = 40, padl = 40,
           stat    = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)],
           curData = filterStat(stat, data),
           x       = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2),
           y       = d3.scale.linear().range([height, 0]),
-          xAxis   = d3.svg.axis().scale(x).tickSize(8),
+          xAxis   = d3.svg.axis().scale(x).tickSize(8).tickFormat(function(i) { return curData[i][1].opp }),
           yAxis   = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
 
 
@@ -78,13 +78,21 @@
       vis.append("g")
         .attr("class", "y axis")
 
+      vis.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + height + ')')
+
       function render(entries, curstat) {
-        var max = d3.max(entries)
+        var max = d3.max(entries, function(d) { return d[0] })
 
         x.domain(d3.range(entries.length))
         y.domain([0, max * 1.1])
 
         vis.select('.y.axis').call(yAxis)
+        vis.select('.x.axis').call(xAxis)
+        vis.selectAll('.x.axis text')
+          .attr('transform', 'translate(' + -(x.rangeBand() / 2) + ',10), rotate(-45)')
+          .attr('text-anchor', 'end')
 
         subject.text(stat.toUpperCase())
 
@@ -104,16 +112,15 @@
           .attr('x', x.rangeBand() / 2)
 
         bargroups.select('rect')
-          .attr('height', function(d) { return height - y(d)})
-          .attr('y', function(d) { return y(d) })
+          .attr('height', function(d) { return height - y(d[0])})
+          .attr('y', function(d) { return y(d[0]) })
 
         bargroups.select('text')
-          .attr('y', function(d) { return y(d) - 5 })
-          .text(function(d) { return d })
+          .attr('y', function(d) { return y(d[0]) - 5 })
+          .text(function(d) { return d[0] })
           .style('display', function(d) {
-            if(isNaN(d)) return 'none'
+            if(isNaN(d[0])) return 'none'
           })
-
 
         bargroups.exit().remove()
       }
@@ -134,8 +141,9 @@
   }
 
   function filterStat(stat, data) {
-    return data.map(function(d) { return d[stat] })
-      .filter(function(d) { return d != undefined && !isNaN(d) })
+    return data.map(function(d) {
+        return [d[stat], d.info]
+     }).filter(function(d) { return d[0] != undefined && !isNaN(d[0]) })
   }
 
   // Hide the chart
