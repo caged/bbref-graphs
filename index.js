@@ -83,14 +83,46 @@
   }
 
   function toData(table) {
-    var dateidx = null
-    table.selectAll('thead th').each(function(el, idx) {
-      var stat = this.innerText.toLowerCase()
-      console.log(stat)
-      if(ALLOWED_TYPES.indexOf(stat.toLowerCase()) != -1) {
+    var dateidx = null,
+        headers = table.selectAll('thead th'),
+        rows    = table.selectAll('tbody tr'),
+        data    = []
 
-      }
+    headers.each(function(el, idx) {
+      if(this.innerText.toLowerCase() == DATE_LABEL)
+        dateidx = idx + 1
     })
+
+    if(!dateidx) {
+      console.log('No Date found in table')
+      return
+    }
+
+    var labels = headers.map(function(hdrs) {
+      return hdrs.map(function(hdr) { return hdr.innerText.toLowerCase() })
+    })[0]
+
+    rows.each(function() {
+      var obj = {}
+      d3.select(this).selectAll('td').each(function(cell, idx) {
+        var label = labels[idx]
+        if(ALLOWED_TYPES.indexOf(label) != -1) {
+          var val = this.innerText
+
+          if(label == 'mp') {
+            var mp = val.split(':').map(Number),
+                val = parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
+          } else {
+            val = val.indexOf('.') == -1 ? ~~val : parseFloat(val)
+          }
+
+          obj[label] = val
+        }
+      })
+      data.push(obj)
+    })
+
+    return data
   }
 
 
