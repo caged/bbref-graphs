@@ -1,5 +1,19 @@
-svg.bbref-chart {
+svg.bbref-chart g.bar rect {
+  fill: green;
+  fill-opacity: 0.5;
+  stroke: green;
+  stroke-width: 1px;
+}
 
+svg.bbref-chart .axis text {
+  fill: #777;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+svg.bbref-chart .axis line {
+  stroke: #eee;
+  stroke-width: 1px;
 }
 
 svg.bbref-chart path.domain {
