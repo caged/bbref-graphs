@@ -23,6 +23,16 @@ svg.bbref-chart g.bar rect {
   fill-opacity: 0.5;
   stroke: green;
   stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+svg.bbref-chart g.bar:hover rect {
+  fill: purple;
+  stroke: purple;
+}
+
+svg.bbref-chart g.bar:hover text {
+  fill: dodgerblue;
 }
 
 svg.bbref-chart .axis text {
@@ -53,7 +63,7 @@ svg.bbref-chart path.domain {
 
 svg.bbref-chart .average {
   fill: none;
-  stroke-width: 1px;
-  stroke-dasharray: 6;
+  stroke-width: 2px;
+  stroke-dasharray: 6 2;
   stroke: #1E90FF;
 }

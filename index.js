@@ -25,6 +25,9 @@
     var width = table.node().offsetWidth,
         height = 400
 
+    if(table.node().querySelectorAll('tbody tr').length > 60)
+      width = 1200
+
     table.style('display', 'none')
 
     if(container.select('div.graph').node() == null) {
@@ -32,10 +35,10 @@
           player  = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
           name    = player[0] + " " + player[player.length - 1],
           stats   = d3.keys(data[0]).filter(function(d) { return d != 'info' }),
-          padt    = 20, padr = 10, padb = 70, padl = 40,
+          padt    = 30, padr = 10, padb = 70, padl = 20,
           stat    = 'pts',
           curData = filterStat(stat, data),
-          x       = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2),
+          x       = d3.scale.ordinal().rangeRoundBands([0, width], 0.2),
           y       = d3.scale.linear().range([height, 0]),
           xAxis   = d3.svg.axis().scale(x).tickSize(8).tickFormat(function(i) {
             return d3.time.format('%m/%d')(curData[i][1].date) + ' ' + curData[i][1].opp
@@ -48,8 +51,9 @@
 
       var div = container.append('div')
         .attr('class', 'graph')
-        .style('width', width + 'px')
+        .style('width', width + padl + padr + 'px')
         .style('border', '1px solid #ccc')
+        .style('padding', '0 0 0 10px')
 
       var h3 = div.append('h3')
         .style('padding', '10px')
@@ -70,6 +74,7 @@
           .data(stats)
       .enter().append('option')
         .text(function(d) { return d })
+        .attr('selected', function(d) { return d == stat ? 'selected' : null })
 
       var vis = div.append('svg')
         .attr('class', 'bbref-chart')
@@ -92,7 +97,6 @@
         var max = d3.max(entries, function(d) { return d[0] }),
             averages = rollingAverageForStat(entries)
 
-        console.log(averages)
         x.domain(d3.range(entries.length))
         y.domain([0, max * 1.1])
 
@@ -111,7 +115,7 @@
           .attr('class', 'bar')
           .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'})
 
-        g.append('rect')
+        rect = g.append('rect')
           .attr('width', x.rangeBand())
 
         g.append('text')
@@ -124,11 +128,24 @@
           .attr('y', function(d) { return y(d[0]) })
 
         bargroups.select('text')
-          .attr('y', function(d) { return y(d[0]) - 5 })
           .text(function(d) { return d[0] })
           .style('display', function(d) {
             if(isNaN(d[0])) return 'none'
           })
+
+        if(entries.length > 40) {
+          bargroups.select('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('text-anchor', 'start')
+            .attr('x', function(d) { return -y(d[0]) + 5 })
+            .attr('y', (x.rangeBand() + 2) / 1.5 )
+            //.attr('x', function(d) { return y(d[0]) - 5 })
+          // g.select('text.barlabel')
+          //   .attr('transform', 'translate(')
+        } else {
+          bargroups.select('text')
+            .attr('y', function(d) { return y(d[0]) - 5 })
+        }
 
         vis.select('path.average')
           .attr('d', path(averages))
