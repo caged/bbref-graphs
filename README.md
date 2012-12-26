@@ -8,7 +8,7 @@ This is a chrome extension for graphing [player game log statistics](http://www.
 
 * [**Download For Google Chrome**](https://github.com/Caged/bbref-graphs/raw/master/bball-ref.crx)
 * In Chrome, navigate to `Window` > `Extensions`
-* Drag and drop the file onto the Extensions page
+* Drag and drop the .crx file onto the Extensions page
 
 
 #### Graph View
