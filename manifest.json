@@ -10,5 +10,9 @@
       "css": ["index.css"],
       "run_at": "document_end"
     }
-  ]
+  ],
+  "icons": {
+    "128": "icon128.png",
+    "48": "icon48.png"
+  }
 }
