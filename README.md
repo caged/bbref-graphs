@@ -2,7 +2,7 @@
 
 ### Basketball Reference Graph Extension
 
-This is a chrome extension for graphing game log statistics on http://basketball-reference.com.  A new button will appear in the header of game logs.  Clicking it will allow you to select which statistic you want to graph.
+This is a chrome extension for graphing []player game log statistics](http://www.basketball-reference.com/players/l/lillada01/gamelog/2013/) on http://basketball-reference.com.  A new button ![](http://f.cl.ly/items/0t3f3x1U1L3B023k2s1Q/button.png) will appear on the right side of the game log tables.  Clicking it will allow you to select which statistic you want to graph.
 
 ### Installation
 
