@@ -5,7 +5,7 @@ a.bbref-chart-link[href]:visited {
   font-weight: bold;
   text-decoration: none;
   background: -webkit-linear-gradient(#f7f7f7, #ddd);
-  padding: 3px 6px;
+  padding: 1px 6px;
   border-radius: 2px;
   border: 1px solid #ccc;
 }
@@ -49,4 +49,11 @@ svg.bbref-chart .axis line {
 
 svg.bbref-chart path.domain {
   display: none;
+}
+
+svg.bbref-chart .average {
+  fill: none;
+  stroke-width: 1px;
+  stroke-dasharray: 6;
+  stroke: orange;
 }

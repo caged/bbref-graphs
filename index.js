@@ -8,8 +8,6 @@
     'ortg', 'drtg'
   ]
 
-  var DATE_LABEL = 'date'
-
   var INFO_TYPES = ['opp', 'date']
 
   // Helper for use in event bindings
@@ -34,14 +32,19 @@
           player  = d3.select('#info_box p.margin_top span.bold_text').text().split(' '),
           name    = player[0] + " " + player[player.length - 1],
           stats   = d3.keys(data[0]).filter(function(d) { return d != 'info' }),
-          padt    = 20, padr = 10, padb = 40, padl = 40,
-          stat    = STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)],
+          padt    = 20, padr = 10, padb = 70, padl = 40,
+          stat    = 'pts',
           curData = filterStat(stat, data),
           x       = d3.scale.ordinal().rangeRoundBands([0, width - padl - padr], 0.2),
           y       = d3.scale.linear().range([height, 0]),
-          xAxis   = d3.svg.axis().scale(x).tickSize(8).tickFormat(function(i) { return curData[i][1].opp }),
+          xAxis   = d3.svg.axis().scale(x).tickSize(8).tickFormat(function(i) {
+            return d3.time.format('%m/%d')(curData[i][1].date) + ' ' + curData[i][1].opp
+          }),
           yAxis   = d3.svg.axis().scale(y).orient("left").tickSize(-width + padl + padr)
 
+      var path = d3.svg.line()
+        .x(function(d, i) { return x(i) + x.rangeBand() / 2 })
+        .y(function(d) { return y(d) })
 
       var div = container.append('div')
         .attr('class', 'graph')
@@ -82,8 +85,12 @@
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,' + height + ')')
 
+      vis.append('path')
+        .attr('class', 'average')
+
       function render(entries, curstat) {
-        var max = d3.max(entries, function(d) { return d[0] })
+        var max = d3.max(entries, function(d) { return d[0] }),
+            averages = rollingAverageForStat(entries)
 
         x.domain(d3.range(entries.length))
         y.domain([0, max * 1.1])
@@ -91,7 +98,7 @@
         vis.select('.y.axis').call(yAxis)
         vis.select('.x.axis').call(xAxis)
         vis.selectAll('.x.axis text')
-          .attr('transform', 'translate(' + -(x.rangeBand() / 2) + ',10), rotate(-45)')
+          .attr('transform', 'translate(' + -((x.rangeBand() / 2) + 10) + ',30), rotate(-65)')
           .attr('text-anchor', 'end')
 
         subject.text(stat.toUpperCase())
@@ -121,6 +128,9 @@
           .style('display', function(d) {
             if(isNaN(d[0])) return 'none'
           })
+
+        vis.select('path.average')
+          .attr('d', path(averages))
 
         bargroups.exit().remove()
       }
@@ -173,6 +183,36 @@
     }
   }
 
+  function minutesToDecimal(val) {
+    var mp = val.split(':').map(Number)
+    return parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
+  }
+
+  function percentageToNumber(val) {
+    if(val == '') {
+      val = NaN
+    } else {
+      if((/^\./).test(val) || parseFloat(val) == 1) {
+        val = (parseFloat(val) * 100).toFixed(1)
+      } else {
+        val = parseFloat(val)
+      }
+    }
+
+    return val
+  }
+
+  function rollingAverageForStat(entries) {
+    var values = entries.map(function(d) { return d[0] }),
+        averages = [],
+        total    = 0
+    values.forEach(function(val, idx) {
+      total += val
+      averages.push(parseFloat(d3.format('.1f')(total / (idx + 1))))
+    })
+
+    return averages
+  }
   // Build an array of objects from an HTML table
   //
   // table - d3 selection
@@ -185,14 +225,13 @@
         data    = []
 
     headers.each(function(el, idx) {
-      if(this.innerText.toLowerCase() == DATE_LABEL)
+      if(this.innerText.toLowerCase() == 'date')
         dateidx = idx + 1
     })
 
     // We want to have dates before we decide to continue
     if(!dateidx) {
-      console.log('No Date found in table')
-      return
+      return console.log('No Date found in table')
     }
 
     // Get the stat labels
@@ -207,24 +246,12 @@
             val = this.innerText
 
         if(STAT_TYPES.indexOf(label) != -1) {
-
           // convert minutes played to decimal
           if(label == 'mp') {
-            var mp = val.split(':').map(Number),
-                val = parseFloat(d3.format('.2f')(((mp[0] * 60) + mp[1]) / 60))
-
+            val = minutesToDecimal(val)
           // Convert percentage decimals to integers
           } else if(label.indexOf('%') != -1) {
-            if(val == '') {
-              val = NaN
-            } else {
-              if((/^\./).test(val) || parseFloat(val) == 1) {
-                val = (parseFloat(val) * 100).toFixed(1)
-              } else {
-                val = parseFloat(val)
-              }
-            }
-
+            val = percentageToNumber(val)
           // Floats strings to floats and number strings to numbers
           } else {
             val = val.indexOf('.') == -1 ? ~~val : parseFloat(val)
