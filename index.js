@@ -92,6 +92,7 @@
         var max = d3.max(entries, function(d) { return d[0] }),
             averages = rollingAverageForStat(entries)
 
+        console.log(averages)
         x.domain(d3.range(entries.length))
         y.domain([0, max * 1.1])
 
@@ -205,9 +206,9 @@
   function rollingAverageForStat(entries) {
     var values = entries.map(function(d) { return d[0] }),
         averages = [],
-        total    = 0
+        total    = 0.0
     values.forEach(function(val, idx) {
-      total += val
+      total += parseFloat(val)
       averages.push(parseFloat(d3.format('.1f')(total / (idx + 1))))
     })
 
