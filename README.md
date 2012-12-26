@@ -1,4 +1,4 @@
-<img src="https://raw.github.com/Caged/bbref-graphs/master/icon48.png" style="float:left; margin-right: 10px; margin-bottom: 20px; margin-top: 10px" />
+![](https://raw.github.com/Caged/bbref-graphs/master/icon48.png)
 
 ### Basketball Reference Graph Extension
 
