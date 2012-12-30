@@ -36,7 +36,7 @@
           name    = player[0] + " " + player[player.length - 1],
           stats   = d3.keys(data[0]).filter(function(d) { return d != 'info' }),
           padt    = 30, padr = 10, padb = 70, padl = 20,
-          stat    = 'pts',
+          stat    = stats.indexOf('pts') != -1 ? 'pts' : 'ortg',
           curData = filterStat(stat, data),
           x       = d3.scale.ordinal().rangeRoundBands([0, width], 0.2),
           y       = d3.scale.linear().range([height, 0]),
