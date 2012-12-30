@@ -1,8 +1,8 @@
 {
   "name": "Basketball Reference Extensions",
-  "version": "0.1",
+  "version": "0.2",
   "manifest_version": 2,
-  "description": "A series of enhancements to basketball-reference.com",
+  "description": "Game log visualization for basketball-reference.com",
   "content_scripts": [
     {
       "matches": ["http://www.basketball-reference.com/*"],
