@@ -6,7 +6,7 @@ This is a chrome extension for graphing [player game log statistics](http://www.
 
 ### Installation
 
-* [**Download For Google Chrome**](https://github.com/Caged/bbref-graphs/raw/master/bball-ref.crx)
+* [**Download v0.2 for Google Chrome**](https://github.com/Caged/bbref-graphs/raw/master/bball-ref.crx)
 * In Chrome, navigate to `Window` > `Extensions`
 * Drag and drop the .crx file onto the Extensions page
 
@@ -16,3 +16,11 @@ This is a chrome extension for graphing [player game log statistics](http://www.
 
 ### Original Stats Table
 ![](http://f.cl.ly/items/3n0O0Y042C112q0w120S/Screen%20Shot%202012-12-26%20at%201.27.17%20PM.png)
+
+### Changelog
+
+#### v0.2 - December 30, 2012
+* Fix default selection in advanced game log
+
+#### v0.1 - December 26, 2012
+* Initial release
